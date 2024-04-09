@@ -69,6 +69,11 @@ def prettyEcho(event):    #這個好像只能執行一個  不知道為什麼，
         sendString = "以下是我們的美食選單功能介紹"
     elif event.message.text == "天氣" in event.message.text:
         sendString = "以下是我們的天氣選單功能介紹"
+    elif event.message.text:
+        city = event.message.text.split(" ")[0]
+        date = event.message.text.split(" ")[1]
+        weather = get_weather_forecast(city, date)
+        sendString = f"{weather}"
     elif "食物" in event.message.text:
          sendString = "請回傳以下食物種類\n(數字或文字都可)：\n1. 飯食\n2. 麵食\n3. 穀物\n4. 蔬菜\n5. 海鮮\n6. 奶製品\n7. 肉類\n8. 家常菜\n9. 飲料"
     elif "飯食" in event.message.text or "飯" in event.message.text or "1" in event.message.text:
@@ -133,6 +138,49 @@ def get_horoscope(sign):
     soup = BeautifulSoup(response.text, 'html.parser')
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
+
+def get_weather_forecast(city, date):
+    # 定義 API 連結
+    url = f'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWA-346E911F-5413-4B38-A93D-8879F3E3E200&format=JSON&locationName={city}'
+    try:
+        # 發送 API 請求
+        response = requests.get(url)
+
+        # 檢查回應狀態碼
+        if response.status_code == 200:
+            # 解析 JSON 資料
+            data_json = response.json()
+
+            # 取得天氣資料
+            locations = data_json['records']['location']
+            for location in locations:
+                print(f"地點：{location['locationName']}")
+                for weather_element in location['weatherElement']:
+                    if weather_element['elementName'] == 'Wx':
+                        print(f"天氣：{weather_element['time'][0]['parameter']['parameterName']}")
+                    elif weather_element['elementName'] == 'PoP':
+                        print(f"降雨機率：{weather_element['time'][0]['parameter']['parameterName']}%")
+                        if int(weather_element['time'][0]['parameter']['parameterName']) > 50:
+                            print("建議攜帶雨具！")
+                        else:
+                            print("天氣晴朗，不需攜帶雨具。")
+                    elif weather_element['elementName'] == 'MinT':
+                        print(f"最低溫度：{weather_element['time'][0]['parameter']['parameterName']}°C")
+                    elif weather_element['elementName'] == 'MaxT':
+                        print(f"最高溫度：{weather_element['time'][0]['parameter']['parameterName']}°C")
+                        max_temp = int(weather_element['time'][0]['parameter']['parameterName'])
+                        if max_temp >= 30:
+                            print("天氣很熱，建議穿輕便服裝。")
+                        elif max_temp >= 20:
+                            print("天氣適中，可穿著舒適服裝。")
+                        elif max_temp >= 10:
+                            print("天氣較涼，建議穿長袖保暖。")
+                        else:
+                            print("天氣寒冷，請注意保暖。")
+        else:
+            print("請求失敗:", response.status_code)
+    except Exception as e:
+        print("發生錯誤:", e)
 
 if __name__ == "__main__":
     app.run()
