@@ -69,9 +69,10 @@ def prettyEcho(event):    #這個好像只能執行一個  不知道為什麼，
         sendString = "以下是我們的美食選單功能介紹"
     elif event.message.text == "天氣" in event.message.text:
         sendString = "以下是我們的天氣選單功能介紹"
-    elif event.message.text:
+    elif event.message.text.endswith("市"):
         city = event.message.text.split(" ")[0]
         date = event.message.text.split(" ")[1]
+        date = date.replace("/", "-")
         weather = get_weather_forecast(city, date)
         sendString = f"{weather}"
     elif "食物" in event.message.text:
