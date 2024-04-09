@@ -44,7 +44,7 @@ def prettyEcho(event):    #這個好像只能執行一個  不知道為什麼，
     elif event.message.text == "星座":
         sendString = "以下是我們的星座選單功能介紹\n請輸入星座"
     elif event.message.text.endswith("座"):
-        sign = event.message.text.split(" ")[1]  # 提取用戶輸入的星座
+        sign = event.message.text.split(" ")[0]  # 提取用戶輸入的星座
         signs = {
             "牡羊座": 0,
             "金牛座": 1,
