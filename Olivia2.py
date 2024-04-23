@@ -37,14 +37,19 @@ def callback():
     return 'OK'
 
 @handler.add(MessageEvent, message=TextMessage)
-def prettyEcho(event):    #這個好像只能執行一個  不知道為什麼，我還沒研究出來  我的意思是我沒有辦法把系統功能跟食物分開來寫兩個判斷(if else)
+def prettyEcho(event):
     sendString = ""
-    if "系統功能" in event.message.text:
+    user_text = event.message.text.strip()  # 獲取用戶訊息並移除首尾空白
+
+    # 處理系統功能
+    if "系統功能" in user_text:
         sendString = "這是我們系統的功能介紹\n請輸入您想查看的功能名稱：\n星座\n美食\n天氣"
-    elif event.message.text == "星座":
+    
+    # 處理星座查詢
+    elif user_text == "星座":
         sendString = "以下是我們的星座選單功能介紹\n請輸入星座"
-    elif event.message.text.endswith("座"):
-        sign = event.message.text.split(" ")[0]  # 提取用戶輸入的星座
+    elif user_text.endswith("座"):
+        sign = user_text.split(" ")[0]  # 提取用戶輸入的星座
         signs = {
             "牡羊座": 0,
             "金牛座": 1,
@@ -65,43 +70,57 @@ def prettyEcho(event):    #這個好像只能執行一個  不知道為什麼，
             sendString = f"{horoscope}"
         else:
             sendString = "請輸入正確的星座名稱！"
-    elif event.message.text ==  "美食" in event.message.text:
+    
+    # 處理美食查詢
+    elif "美食" in user_text:
         sendString = "以下是我們的美食選單功能介紹"
-    elif event.message.text == "天氣" in event.message.text:
+    
+    # 處理天氣查詢
+    elif "天氣" in user_text:
         sendString = "以下是我們的天氣選單功能介紹"
-    elif event.message.text.endswith("市"):
-        city = event.message.text.split(" ")[0]
-        date = event.message.text.split(" ")[1]
-        date = date.replace("/", "-")
-        weather = get_weather_forecast(city, date)
-        sendString = f"{weather}"
-    elif "食物" in event.message.text:
-         sendString = "請回傳以下食物種類\n(數字或文字都可)：\n1. 飯食\n2. 麵食\n3. 穀物\n4. 蔬菜\n5. 海鮮\n6. 奶製品\n7. 肉類\n8. 家常菜\n9. 飲料"
-    elif "飯食" in event.message.text or "飯" in event.message.text or "1" in event.message.text:
-        sendString = drawStraws()
-    elif "麵食" in event.message.text or "麵" in event.message.text or "2" in event.message.text:
-        sendString = drawStraws1()
-    elif "穀物" in event.message.text or "穀" in event.message.text or "3" in event.message.text:
-        sendString = drawStraws2()
-    elif "蔬菜" in event.message.text or "4" in event.message.text:
-        sendString = drawStraws3()
-    elif "海鮮" in event.message.text or "5" in event.message.text:
-        sendString = drawStraws4()
-    elif "奶製品" in event.message.text or "奶" in event.message.text or "6" in event.message.text:
-        sendString = drawStraws5()
-    elif "肉類" in event.message.text or "肉" in event.message.text or "7" in event.message.text:
-        sendString = drawStraws6()
-    elif "家常菜" in event.message.text or "8" in event.message.text:
-        sendString = drawStraws7()
-    elif "飲料" in event.message.text or "9" in event.message.text:
-        sendString = drawStraws8()
-    else:
-        sendString = event.message.text
 
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=sendString)
-    )
+    # 處理天氣預報查詢
+    elif "市" in user_text:
+        # 確保訊息的格式正確
+        try:
+            city, date = user_text.split()
+            date = date.replace("/", "-")  # 將日期格式轉換
+            weather = get_weather_forecast(city, date)
+            sendString = f"{weather}"
+        except ValueError:
+            sendString = "請輸入正確的城市和日期格式：例如 '台北市 2024/04/23'"
+    
+    # 處理食物選單查詢
+    elif "食物" in user_text:
+        sendString = "請回傳以下食物種類\n(數字或文字都可)：\n1. 飯食\n2. 麵食\n3. 穀物\n4. 蔬菜\n5. 海鮮\n6. 奶製品\n7. 肉類\n8. 家常菜\n9. 飲料"
+
+    # 處理具體食物查詢
+    elif "飯食" in user_text or "飯" in user_text or "1" in user_text:
+        sendString = drawStraws()
+    elif "麵食" in user_text or "麵" in user_text or "2" in user_text:
+        sendString = drawStraws1()
+    elif "穀物" in user_text or "穀" in user_text or "3" in user_text:
+        sendString = drawStraws2()
+    elif "蔬菜" in user_text or "4" in user_text:
+        sendString = drawStraws3()
+    elif "海鮮" in user_text or "5" in user_text:
+        sendString = drawStraws4()
+    elif "奶製品" in user_text or "奶" in user_text or "6" in user_text:
+        sendString = drawStraws5()
+    elif "肉類" in user_text or "肉" in user_text or "7" in user_text:
+        sendString = drawStraws6()
+    elif "家常菜" in user_text or "8" in user_text:
+        sendString = drawStraws7()
+    elif "飲料" in user_text or "9" in user_text:
+        sendString = drawStraws8()
+    
+    # 預設回應：將用戶原始訊息回傳
+    else:
+        sendString = user_text
+
+    # 使用 reply_message 方法將訊息回傳給用戶
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=sendString))
+    
 def divinationBlocks():
     divinationBlocksList = ["飯食","麵食","穀物","蔬菜","海鮮","奶製品","肉類"]
     return divinationBlocksList[random.randint(0, len(divinationBlocksList) - 1)]
