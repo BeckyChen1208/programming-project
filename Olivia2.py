@@ -92,26 +92,26 @@ def prettyEcho(event):
     
     # 處理食物選單查詢
     elif "食物" in user_text:
-        sendString = "請回傳以下食物種類\n(數字或文字都可)：\n1. 飯食\n2. 麵食\n3. 穀物\n4. 蔬菜\n5. 海鮮\n6. 奶製品\n7. 肉類\n8. 家常菜\n9. 飲料"
+        sendString = "請回傳以下食物種類：\n1. 飯食\n2. 麵食\n3. 穀物\n4. 蔬菜\n5. 海鮮\n6. 奶製品\n7. 肉類\n8. 家常菜\n9. 飲料"
 
     # 處理具體食物查詢
-    elif "飯食" in user_text or "飯" in user_text or "1" in user_text:
+    elif "飯食" in user_text or "飯" in user_text:
         sendString = drawStraws()
-    elif "麵食" in user_text or "麵" in user_text or "2" in user_text:
+    elif "麵食" in user_text or "麵" in user_text:
         sendString = drawStraws1()
-    elif "穀物" in user_text or "穀" in user_text or "3" in user_text:
+    elif "穀物" in user_text or "穀" in user_text:
         sendString = drawStraws2()
-    elif "蔬菜" in user_text or "4" in user_text:
+    elif "蔬菜" in user_text:
         sendString = drawStraws3()
-    elif "海鮮" in user_text or "5" in user_text:
+    elif "海鮮" in user_text:
         sendString = drawStraws4()
-    elif "奶製品" in user_text or "奶" in user_text or "6" in user_text:
+    elif "奶製品" in user_text or "奶" in user_text:
         sendString = drawStraws5()
-    elif "肉類" in user_text or "肉" in user_text or "7" in user_text:
+    elif "肉類" in user_text or "肉" in user_text:
         sendString = drawStraws6()
-    elif "家常菜" in user_text or "8" in user_text:
+    elif "家常菜" in user_text:
         sendString = drawStraws7()
-    elif "飲料" in user_text or "9" in user_text:
+    elif "飲料" in user_text:
         sendString = drawStraws8()
     
     # 預設回應：將用戶原始訊息回傳
