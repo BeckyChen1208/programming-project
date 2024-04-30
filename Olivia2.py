@@ -82,18 +82,18 @@ def prettyEcho(event):
     elif user_text.endswith("座"):
         sign = user_text.split(" ")[0]
         signs = {
-            "牡羊座": "aries",
-            "金牛座": "taurus",
-            "雙子座": "gemini",
-            "巨蟹座": "cancer",
-            "獅子座": "leo",
-            "處女座": "virgo",
-            "天秤座": "libra",
-            "天蠍座": "scorpio",
-            "射手座": "sagittarius",
-            "摩羯座": "capricorn",
-            "水瓶座": "aquarius",
-            "雙魚座": "pisces"
+            "牡羊座": 0,
+            "金牛座": 1,
+            "雙子座": 2,
+            "巨蟹座": 3,
+            "獅子座": 4,
+            "處女座": 5,
+            "天秤座": 6,
+            "天蠍座": 7,
+            "射手座": 8,
+            "摩羯座": 9,
+            "水瓶座": 10,
+            "雙魚座": 11
         }
         sign_code = signs.get(sign)
         if sign_code:
