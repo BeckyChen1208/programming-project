@@ -76,8 +76,8 @@ def prettyEcho(event):
         sendString = "以下是我們的美食選單功能介紹"
     
     # 處理天氣查詢
-    elif "天氣" in user_text:
-        sendString = "以下是我們的天氣選單功能介紹"
+    elif "旅遊" in user_text:
+        sendString = scrape_viewpoints()
     
     # 處理食物選單查詢
     elif "食物" in user_text:
@@ -148,6 +148,61 @@ def get_horoscope(sign):
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
 
+def fetch_url(url):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        print(f"Error: Unable to fetch URL {url}. Status code: {response.status_code}")
+        return None
+    return response
+
+def scrape_viewpoints():
+    response = fetch_url("https://www.taiwan.net.tw/")
+    if response is None:
+        return
+    
+    soup = BeautifulSoup(response.text, "html.parser")
+    
+    viewpoints = soup.find_all("a", class_="megamenu-btn")
+    all_itineraries = []
+    
+    for viewpoint in viewpoints:
+        url = urljoin(BASE_URL, viewpoint.get("href"))
+        url_response = fetch_url(url)
+        if url_response is None:
+            continue
+        
+        url_soup = BeautifulSoup(url_response.text, "html.parser")
+        
+        de_viewpoints = url_soup.find_all("a", class_="circularbtn")
+        for de_viewpoint in de_viewpoints:
+            viewpoint_text = viewpoint.getText()
+            de_viewpoint_text = de_viewpoint.find("span", class_="circularbtn-title").getText()
+            
+            de_url = urljoin(BASE_URL, de_viewpoint.get("href"))
+            de_url_response = fetch_url(de_url)
+            if de_url_response is None:
+                continue
+            
+            de_url_soup = BeautifulSoup(de_url_response.text, "html.parser")
+            
+            titles = de_url_soup.find_all("div", class_="card-info")
+            for title in titles:
+                itinerary_title = title.find("div", class_="card-title").getText()
+                all_itineraries.append({
+                    "viewpoint": viewpoint_text,
+                    "de_viewpoint": de_viewpoint_text,
+                    "title": itinerary_title
+                })
+                
+    # 隨機推薦一個行程
+    if all_itineraries:
+        random_itinerary = random.choice(all_itineraries)
+        print("隨機推薦的行程:")
+        print(f"地點: {random_itinerary['viewpoint']} - {random_itinerary['de_viewpoint']}")
+        print(f"行程名稱: {random_itinerary['title']}")
 
 if __name__ == "__main__":
     app.run()
