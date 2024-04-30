@@ -101,10 +101,10 @@ def prettyEcho(event):
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=horoscope))
         else:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入正確的星座名稱！"))
-    elif "美食" in user_text:
+    elif '美食' in user_text:
         # 處理美食查詢
         # 創建食物類別的快速回覆按鈕
-        quick_reply_buttons = [
+        quick_reply_buttons1 = [
             QuickReplyButton(action=MessageAction(label="飯食", text="飯食")),
             QuickReplyButton(action=MessageAction(label="麵食", text="麵食")),
             QuickReplyButton(action=MessageAction(label="穀物", text="穀物")),
@@ -116,12 +116,12 @@ def prettyEcho(event):
         ]
         
         # 創建 QuickReply 並將按鈕列表添加到其中
-        quick_reply = QuickReply(items=quick_reply_buttons)
+        quick_reply1 = QuickReply(items=quick_reply_buttons1)
         
         # 創建 TextSendMessage 並將 QuickReply 添加到其中
         text_message = TextSendMessage(
             text="請選擇您想查詢的食物類別：",
-            quick_reply=quick_reply
+            quick_reply=quick_reply1
         )
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=sendString))
     elif user_text in ["飯食", "麵食", "穀物", "蔬菜", "海鮮", "奶製品", "肉類", "飲料"]:
