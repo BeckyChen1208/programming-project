@@ -80,6 +80,7 @@ def prettyEcho(event):
         sendString = scrape_viewpoints()
 
     elif user_text == "旅遊": 
+        sendString = 1
         sendString = scrape_viewpoints()
         
     # 處理食物選單查詢
