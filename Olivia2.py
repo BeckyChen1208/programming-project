@@ -101,7 +101,7 @@ def prettyEcho(event):
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=horoscope))
         else:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入正確的星座名稱！"))
-    elif '美食' in user_text:
+    elif "美食" in user_text:
         # 處理美食查詢
         # 創建食物類別的快速回覆按鈕
         quick_reply_buttons = [
@@ -139,7 +139,7 @@ def prettyEcho(event):
         
         # 隨機選擇該類別中的食物
         random_food = random.choice(food_options[user_text])
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=food_response[user_text]))
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=random_food))
     else:
         # 預設回應：回復用戶原始訊息
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=user_text))
