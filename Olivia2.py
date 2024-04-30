@@ -73,7 +73,22 @@ def prettyEcho(event):
     
     # 處理美食查詢
     elif "美食" in user_text:
-        sendString = "以下是我們的美食選單功能介紹"
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                text='請選擇您想查詢的食物類別：',
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(action=MessageAction(label="飯食", text="飯食")),
+                        QuickReplyButton(action=MessageAction(label="麵食", text="麵食")),
+                        QuickReplyButton(action=MessageAction(label="穀物", text="穀物")),
+                        QuickReplyButton(action=MessageAction(label="蔬菜", text="蔬菜")),
+                        QuickReplyButton(action=MessageAction(label="海鮮", text="海鮮")),
+                        QuickReplyButton(action=MessageAction(label="奶製品", text="奶製品")),
+                        QuickReplyButton(action=MessageAction(label="肉類", text="肉類")),
+                        QuickReplyButton(action=MessageAction(label="家常菜", text="家常菜")),
+                        QuickReplyButton(action=MessageAction(label="飲料", text="飲料"))
+                    ])))
     
     # 處理天氣查詢
     elif "旅遊" in user_text:
@@ -87,55 +102,23 @@ def prettyEcho(event):
         sendString = "請回傳以下食物種類：\n1. 飯食\n2. 麵食\n3. 穀物\n4. 蔬菜\n5. 海鮮\n6. 奶製品\n7. 肉類\n8. 家常菜\n9. 飲料"
 
     # 處理具體食物查詢
-    elif "飯食" in user_text or "飯" in user_text:
-        sendString = drawStraws()
-    elif "麵食" in user_text or "麵" in user_text:
-        sendString = drawStraws1()
-    elif "穀物" in user_text or "穀" in user_text:
-        sendString = drawStraws2()
-    elif "蔬菜" in user_text:
-        sendString = drawStraws3()
-    elif "海鮮" in user_text:
-        sendString = drawStraws4()
-    elif "奶製品" in user_text or "奶" in user_text:
-        sendString = drawStraws5()
-    elif "肉類" in user_text or "肉" in user_text:
-        sendString = drawStraws6()
-    elif "家常菜" in user_text:
-        sendString = drawStraws7()
-    elif "飲料" in user_text:
-        sendString = drawStraws8()
-
-    elif 'quick' in event.message.text:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                text='a quick reply message',
-                quick_reply=QuickReply(
-                    items=[
-                        QuickReplyButton(
-                            action=CameraAction(label="開啟相機吧")
-                        ),
-                        QuickReplyButton(
-                            action=CameraRollAction(label="相機膠捲")
-                        ),
-                        # return a location message
-                        QuickReplyButton(
-                            action=LocationAction(label="位置資訊")
-                        ),
-                        QuickReplyButton(
-                            action=PostbackAction(label="postback", data="postback")
-                        ),
-                        QuickReplyButton(
-                            action=MessageAction(label="message", text="one message")
-                        ),
-                        QuickReplyButton(
-                            action=DatetimePickerAction(label="時間選單",
-                                                        data ="date_postback",
-                                                        mode ="date")
-                        )
-                    ])))
-    
+    elif user_text in ["飯食", "麵食", "穀物", "蔬菜", "海鮮", "奶製品", "肉類", "飲料"]:
+        # 處理食物選單查詢
+        food_options = {
+            "飯食": ["炒飯", "焗烤飯", "油飯", "鹹粥"],
+            "麵食": ["麵食", "拉麵", "義大利麵", "冬粉", "麵線"],
+            "穀物": ["米", "糙米", "燕麥", "糯米"],
+            "蔬菜": ["高麗菜", "青江菜", "菠菜", "芹菜"],
+            "海鮮": ["蝦", "魚", "螃蟹", "蚵仔"],
+            "奶製品": ["牛奶", "優格", "起司"],
+            "肉類": ["牛肉", "雞肉", "豬肉", "羊肉"],
+            "飲料": ["紅茶", "綠茶", "奶茶", "果汁"]
+        }
+        # 隨機選擇該類別中的食物
+        random_food = random.choice(food_options[user_text])
+        # 回復隨機選擇的食物
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=random_food))
+        
     # 預設回應：將用戶原始訊息回傳
     else:
         sendString = user_text
