@@ -78,17 +78,6 @@ def prettyEcho(event):
     # 處理天氣查詢
     elif "天氣" in user_text:
         sendString = "以下是我們的天氣選單功能介紹"
-
-    # 處理天氣預報查詢
-    elif "市" in user_text:
-        # 確保訊息的格式正確
-        try:
-            city, date = user_text.split()
-            date = date.replace("/", "-")  # 將日期格式轉換
-            weather = get_weather_forecast(city, date)
-            sendString = f"{weather}"
-        except ValueError:
-            sendString = "請輸入正確的城市和日期格式：例如 '台北市 2024/04/23'"
     
     # 處理食物選單查詢
     elif "食物" in user_text:
@@ -159,52 +148,6 @@ def get_horoscope(sign):
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
 
-def get_weather_forecast(city, date):
-    # 定義 API 連結
-    url = f'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWA-346E911F-5413-4B38-A93D-8879F3E3E200&format=JSON&locationName={city}'
-    try:
-        # 發送 API 請求
-        response = requests.get(url)
-        # 檢查回應狀態碼
-        if response.status_code == 200:
-            # 解析 JSON 資料
-            data_json = response.json()
-            # 取得天氣資料
-            locations = data_json['records']['location']
-            weather_info = []  # 用於存儲天氣預報的文字描述
-            for location in locations:
-                weather_desc = f"地點：{location['locationName']}\n"
-                for weather_element in location['weatherElement']:
-                    if weather_element['elementName'] == 'Wx':
-                        weather_desc += f"天氣：{weather_element['time'][0]['parameter']['parameterName']}\n"
-                    elif weather_element['elementName'] == 'PoP':
-                        pop_value = weather_element['time'][0]['parameter']['parameterName']
-                        weather_desc += f"降雨機率：{pop_value}%\n"
-                        if int(pop_value) > 50:
-                            weather_desc += "建議攜帶雨具！\n"
-                        else:
-                            weather_desc += "天氣晴朗，不需攜帶雨具。\n"
-                    elif weather_element['elementName'] == 'MinT':
-                        weather_desc += f"最低溫度：{weather_element['time'][0]['parameter']['parameterName']}°C\n"
-                    elif weather_element['elementName'] == 'MaxT':
-                        max_temp = int(weather_element['time'][0]['parameter']['parameterName'])
-                        weather_desc += f"最高溫度：{weather_element['time'][0]['parameter']['parameterName']}°C\n"
-                        if max_temp >= 30:
-                            weather_desc += "天氣很熱，建議穿輕便服裝。\n"
-                        elif max_temp >= 20:
-                            weather_desc += "天氣適中，可穿著舒適服裝。\n"
-                        elif max_temp >= 10:
-                            weather_desc += "天氣較涼，建議穿長袖保暖。\n"
-                        else:
-                            weather_desc += "天氣寒冷，請注意保暖。\n"
-                # 將天氣預報的描述添加到列表中
-                weather_info.append(weather_desc)
-            # 將列表中的描述組合成一個字串
-            return "\n".join(weather_info)
-        else:
-            return f"請求失敗: {response.status_code}"
-    except Exception as e:
-        return f"發生錯誤: {e}"
 
 if __name__ == "__main__":
     app.run()
