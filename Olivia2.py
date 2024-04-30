@@ -126,16 +126,19 @@ def prettyEcho(event):
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=sendString))
     elif user_text in ["飯食", "麵食", "穀物", "蔬菜", "海鮮", "奶製品", "肉類", "飲料"]:
         # 處理食物選單查詢
-        food_response = {
-            "飯食": drawStraws(["炒飯", "焗烤飯", "油飯", "鹹粥"]),
-            "麵食": drawStraws(["麵食", "拉麵", "義大利麵", "冬粉", "麵線"]),
-            "穀物": drawStraws(["米", "糙米", "燕麥", "糯米"]),
-            "蔬菜": drawStraws(["高麗菜", "青江菜", "菠菜", "芹菜"]),
-            "海鮮": drawStraws(["蝦", "魚", "螃蟹", "蚵仔"]),
-            "奶製品": drawStraws(["牛奶", "優格", "起司"]),
-            "肉類": drawStraws(["牛肉", "雞肉", "豬肉", "羊肉"]),
-            "飲料": drawStraws(["紅茶", "綠茶", "奶茶", "果汁"])
+        food_options = {
+            "飯食": ["炒飯", "焗烤飯", "油飯", "鹹粥"],
+            "麵食": ["麵食", "拉麵", "義大利麵", "冬粉", "麵線"],
+            "穀物": ["米", "糙米", "燕麥", "糯米"],
+            "蔬菜": ["高麗菜", "青江菜", "菠菜", "芹菜"],
+            "海鮮": ["蝦", "魚", "螃蟹", "蚵仔"],
+            "奶製品": ["牛奶", "優格", "起司"],
+            "肉類": ["牛肉", "雞肉", "豬肉", "羊肉"],
+            "飲料": ["紅茶", "綠茶", "奶茶", "果汁"]
         }
+        
+        # 隨機選擇該類別中的食物
+        random_food = random.choice(food_options[user_text])
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=food_response[user_text]))
     else:
         # 預設回應：回復用戶原始訊息
