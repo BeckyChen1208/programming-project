@@ -128,38 +128,6 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=event.postback.params['date']))
 
-def divinationBlocks():
-    divinationBlocksList = ["飯食","麵食","穀物","蔬菜","海鮮","奶製品","肉類"]
-    return divinationBlocksList[random.randint(0, len(divinationBlocksList) - 1)]
-def drawStraws():
-    drawStrawsList = ["炒飯","燉飯","焗烤飯","油飯", "鹹粥", "小米粥","壽司"]
-    return drawStrawsList[random.randint(0, len(drawStrawsList) - 1)]
-def drawStraws1():
-    drawStrawsList = ["刀削麵", "陽春麵", "冬粉","焗烤意麵","米粉","烏龍麵","水餃","麵包","辣炒年糕","鍋貼","拉麵","義大利麵","蛋餅","鹽水意麵","鍋燒意麵","筆管麵","排骨雞麵","排骨酥麵","泡麵"]
-    return drawStrawsList[random.randint(0, len(drawStrawsList) - 1)]
-def drawStraws2():
-    drawStrawsList = ["綠豆湯", "紅豆湯", "豆花", "燕麥片","燒仙草"]
-    return drawStrawsList[random.randint(0, len(drawStrawsList) - 1)]
-def drawStraws3():
-    drawStrawsList = ["青江菜", "空心菜", "高麗菜", "洋蔥炒蛋","番茄炒蛋","豆芽菜","蛋花湯"]
-    return drawStrawsList[random.randint(0, len(drawStrawsList) - 1)]
-def drawStraws4():
-    drawStrawsList = ["蝦子", "蛤蠣絲瓜","魚湯","螃蟹","龍蝦"]
-    return drawStrawsList[random.randint(0, len(drawStrawsList) - 1)]
-def drawStraws5():
-    drawStrawsList = ["牛奶", "優若乳", "起司","乳清蛋白","冰淇淋","聖代","冰棒"]
-    return drawStrawsList[random.randint(0, len(drawStrawsList) - 1)]
-def drawStraws6():
-    drawStrawsList = ["牛排", "炸豬排", "雞排","羊肉爐"]
-    return drawStrawsList[random.randint(0, len(drawStrawsList) - 1)]
-def drawStraws7():
-    drawStrawsList = ["青椒炒肉絲", "紅燒獅子頭","紅燒肉","糖醋里肌","番茄炒蛋","麻婆豆腐"]
-    return drawStrawsList[random.randint(0, len(drawStrawsList) - 1)]
-def drawStraws8():
-    drawStrawsList = ["珍珠奶茶", "現榨果汁","奶茶","紅茶","綠茶"]
-    return drawStrawsList[random.randint(0, len(drawStrawsList) - 1)]
-
-
 def get_horoscope(sign):
     url = f'https://astro.click108.com.tw/daily_{sign}.php?iAstro={sign}'
     response = requests.get(url)
