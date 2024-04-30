@@ -1,7 +1,7 @@
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage, QuickReply, QuickReplyButton, MessageAction
+from linebot.models import MessageEvent, TextMessage, TextSendMessage, QuickReply, QuickReplyButton, MessageAction, CameraAction, CameraRollAction, LocationAction, PostbackEvent, PostbackAction, DatetimePickerAction
 import configparser
 import random
 import requests
@@ -30,18 +30,55 @@ def callback():
 
     return 'OK'
 
+# 處理用戶訊息
 @handler.add(MessageEvent, message=TextMessage)
 def prettyEcho(event):
-    user_text = event.message.text.strip()  # 獲取用戶訊息並移除首尾空白
-    sendString = ""
+    user_text = event.message.text.strip()
+    
+    # 處理"quick"訊息，返回帶有快速回復按鈕的訊息
+    if user_text == "quick":
+        quick_reply_buttons = [
+            QuickReplyButton(
+                action=CameraAction(label="開啟相機")
+            ),
+            QuickReplyButton(
+                action=CameraRollAction(label="相機膠捲")
+            ),
+            QuickReplyButton(
+                action=LocationAction(label="位置資訊")
+            ),
+            QuickReplyButton(
+                action=PostbackAction(label="Postback 行為", data="postback")
+            ),
+            QuickReplyButton(
+                action=MessageAction(label="一則訊息", text="這是一則訊息")
+            ),
+            QuickReplyButton(
+                action=DatetimePickerAction(label="選擇日期", data="date_postback", mode="date")
+            )
+        ]
 
-    # 處理系統功能
-    if "系統功能" in user_text:
-        sendString = "這是我們系統的功能介紹\n請輸入您想查看的功能名稱：\n星座\n美食\n天氣"
-
-    # 處理星座查詢
+        quick_reply = QuickReply(items=quick_reply_buttons)
+        
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                text='請選擇您想使用的功能：',
+                quick_reply=quick_reply
+            )
+        )
+    elif user_text == "旅遊":
+        # 處理旅遊查詢
+        sendString = scrape_viewpoints()
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=sendString))
+    elif user_text == "天氣":
+        # 處理天氣查詢
+        sendString = scrape_weather()
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=sendString))
     elif user_text == "星座":
+        # 處理星座查詢
         sendString = "請輸入星座名稱："
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=sendString))
     elif user_text.endswith("座"):
         sign = user_text.split(" ")[0]
         signs = {
@@ -61,16 +98,15 @@ def prettyEcho(event):
         sign_code = signs.get(sign)
         if sign_code:
             horoscope = get_horoscope(sign_code)
-            sendString = horoscope
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=horoscope))
         else:
-            sendString = "請輸入正確的星座名稱！"
-    
-    # 處理美食查詢
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入正確的星座名稱！"))
     elif "美食" in user_text:
+        # 處理美食查詢
         sendString = "請輸入食物種類：\n1. 飯食\n2. 麵食\n3. 穀物\n4. 蔬菜\n5. 海鮮\n6. 奶製品\n7. 肉類\n8. 飲料"
-    
-    # 處理食物選單查詢
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=sendString))
     elif user_text in ["飯食", "麵食", "穀物", "蔬菜", "海鮮", "奶製品", "肉類", "飲料"]:
+        # 處理食物選單查詢
         food_response = {
             "飯食": drawStraws(["炒飯", "焗烤飯", "油飯", "鹹粥"]),
             "麵食": drawStraws(["麵食", "拉麵", "義大利麵", "冬粉", "麵線"]),
@@ -81,32 +117,24 @@ def prettyEcho(event):
             "肉類": drawStraws(["牛肉", "雞肉", "豬肉", "羊肉"]),
             "飲料": drawStraws(["紅茶", "綠茶", "奶茶", "果汁"])
         }
-        sendString = food_response[user_text]
-    
-    # 處理天氣查詢
-    elif user_text == "天氣":
-        sendString = scrape_weather()
-    
-    # 處理旅遊查詢
-    elif user_text == "旅遊":
-        sendString = scrape_viewpoints()
-
-    # 預設回應：將用戶原始訊息回傳
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=food_response[user_text]))
     else:
-        sendString = user_text
+        # 預設回應：回復用戶原始訊息
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=user_text))
 
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=sendString))
-
+# 處理 Postback 事件
 @handler.add(PostbackEvent)
-def handle_message(event):
+def handle_postback(event):
     data = event.postback.data
     if data == 'date_postback':
         date = event.postback.params['date']
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"您選擇的日期是：{date}"))
 
+# 函數：隨機選擇食物
 def drawStraws(options):
     return random.choice(options)
 
+# 函數：獲取星座運勢
 def get_horoscope(sign):
     url = f'https://astro.click108.com.tw/daily_{sign}.php?iAstro={sign}'
     response = requests.get(url)
@@ -114,6 +142,7 @@ def get_horoscope(sign):
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
 
+# 函數：網絡請求
 def fetch_url(url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
@@ -123,6 +152,7 @@ def fetch_url(url):
         return None
     return response.text
 
+# 函數：抓取旅遊資訊
 def scrape_viewpoints():
     url = "https://www.taiwan.net.tw/"
     response_text = fetch_url(url)
@@ -170,5 +200,6 @@ def scrape_viewpoints():
     else:
         return "無法推薦行程。"
 
+# 主程序入口
 if __name__ == "__main__":
     app.run()
