@@ -36,7 +36,7 @@ def prettyEcho(event):
     user_text = event.message.text.strip()
     
     # 處理"quick"訊息，返回帶有快速回復按鈕的訊息
-    if user_text == "quick":
+    if 'quick' in user_text:
         quick_reply_buttons = [
             QuickReplyButton(
                 action=CameraAction(label="開啟相機")
@@ -103,7 +103,26 @@ def prettyEcho(event):
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="請輸入正確的星座名稱！"))
     elif "美食" in user_text:
         # 處理美食查詢
-        sendString = "請輸入食物種類：\n1. 飯食\n2. 麵食\n3. 穀物\n4. 蔬菜\n5. 海鮮\n6. 奶製品\n7. 肉類\n8. 飲料"
+        # 創建食物類別的快速回覆按鈕
+        quick_reply_buttons = [
+            QuickReplyButton(action=MessageAction(label="飯食", text="飯食")),
+            QuickReplyButton(action=MessageAction(label="麵食", text="麵食")),
+            QuickReplyButton(action=MessageAction(label="穀物", text="穀物")),
+            QuickReplyButton(action=MessageAction(label="蔬菜", text="蔬菜")),
+            QuickReplyButton(action=MessageAction(label="海鮮", text="海鮮")),
+            QuickReplyButton(action=MessageAction(label="奶製品", text="奶製品")),
+            QuickReplyButton(action=MessageAction(label="肉類", text="肉類")),
+            QuickReplyButton(action=MessageAction(label="飲料", text="飲料"))
+        ]
+        
+        # 創建 QuickReply 並將按鈕列表添加到其中
+        quick_reply = QuickReply(items=quick_reply_buttons)
+        
+        # 創建 TextSendMessage 並將 QuickReply 添加到其中
+        text_message = TextSendMessage(
+            text="請選擇您想查詢的食物類別：",
+            quick_reply=quick_reply
+        )
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=sendString))
     elif user_text in ["飯食", "麵食", "穀物", "蔬菜", "海鮮", "奶製品", "肉類", "飲料"]:
         # 處理食物選單查詢
