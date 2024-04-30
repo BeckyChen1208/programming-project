@@ -1,9 +1,10 @@
 from __future__ import unicode_literals
 import os
-from flask import Flask, request, abort
+from flask import Flask, request, abort, render_template
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from linebot.models import *
 import configparser
 import random
 import requests
@@ -23,7 +24,6 @@ handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 @app.route("/callback", methods=['POST'])
 def callback():
     signature = request.headers['X-Line-Signature']
-
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
 
@@ -105,6 +105,36 @@ def prettyEcho(event):
         sendString = drawStraws7()
     elif "飲料" in user_text:
         sendString = drawStraws8()
+
+    elif 'quick' in event.message.text:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                text='a quick reply message',
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(
+                            action=CameraAction(label="開啟相機吧")
+                        ),
+                        QuickReplyButton(
+                            action=CameraRollAction(label="相機膠捲")
+                        ),
+                        # return a location message
+                        QuickReplyButton(
+                            action=LocationAction(label="位置資訊")
+                        ),
+                        QuickReplyButton(
+                            action=PostbackAction(label="postback", data="postback")
+                        ),
+                        QuickReplyButton(
+                            action=MessageAction(label="message", text="one message")
+                        ),
+                        QuickReplyButton(
+                            action=DatetimePickerAction(label="時間選單",
+                                                        data ="date_postback",
+                                                        mode ="date")
+                        )
+                    ])))
     
     # 預設回應：將用戶原始訊息回傳
     else:
@@ -112,7 +142,15 @@ def prettyEcho(event):
 
     # 使用 reply_message 方法將訊息回傳給用戶
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=sendString))
-    
+
+# Handle PostbackEvent
+@handler.add(PostbackEvent)
+def handle_message(event):
+    data = event.postback.data
+    if data == 'date_postback':
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=event.postback.params['date']))
+
 def divinationBlocks():
     divinationBlocksList = ["飯食","麵食","穀物","蔬菜","海鮮","奶製品","肉類"]
     return divinationBlocksList[random.randint(0, len(divinationBlocksList) - 1)]
@@ -144,14 +182,13 @@ def drawStraws8():
     drawStrawsList = ["珍珠奶茶", "現榨果汁","奶茶","紅茶","綠茶"]
     return drawStrawsList[random.randint(0, len(drawStrawsList) - 1)]
 
-'''
+
 def get_horoscope(sign):
     url = f'https://astro.click108.com.tw/daily_{sign}.php?iAstro={sign}'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
-'''
 
 def fetch_url(url):
     headers = {
