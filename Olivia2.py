@@ -144,12 +144,14 @@ def drawStraws8():
     drawStrawsList = ["珍珠奶茶", "現榨果汁","奶茶","紅茶","綠茶"]
     return drawStrawsList[random.randint(0, len(drawStrawsList) - 1)]
 
+'''
 def get_horoscope(sign):
     url = f'https://astro.click108.com.tw/daily_{sign}.php?iAstro={sign}'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
+'''
 
 def fetch_url(url):
     headers = {
