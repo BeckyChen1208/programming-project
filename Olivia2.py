@@ -78,7 +78,10 @@ def prettyEcho(event):
     # 處理天氣查詢
     elif "旅遊" in user_text:
         sendString = scrape_viewpoints()
-    
+
+    elif user_text == "旅遊": 
+        sendString = scrape_viewpoints()
+        
     # 處理食物選單查詢
     elif "食物" in user_text:
         sendString = "請回傳以下食物種類：\n1. 飯食\n2. 麵食\n3. 穀物\n4. 蔬菜\n5. 海鮮\n6. 奶製品\n7. 肉類\n8. 家常菜\n9. 飲料"
