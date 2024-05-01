@@ -49,10 +49,10 @@ def prettyEcho(event):
             thumbnail_image_url='https://i.pinimg.com/originals/ca/9a/a7/ca9aa7a0f9ae2e323bef8c553eda0d10.jpg',
             text='請選擇以下操作',
             actions=[
-                MessageAction(label='旅遊', text='旅遊'),
-                MessageAction(label='星座', text='星座'),
-                MessageAction(label='穿搭', text='穿搭'),
-                MessageAction(label='美食', text='美食')
+                MessageAction(label='旅遊', text='旅遊功能介紹'),
+                MessageAction(label='星座', text='星座功能介紹'),
+                MessageAction(label='穿搭', text='穿搭功能介紹'),
+                MessageAction(label='美食', text='美食功能介紹')
             ]
         )
 
