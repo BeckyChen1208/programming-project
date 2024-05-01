@@ -66,7 +66,7 @@ def prettyEcho(event):
                 template=buttons_template
             )
         )
-    '''
+    
     # 處理星座查詢
     elif user_text == "星座":
         sendString = "以下是我們的星座選單功能介紹\n請輸入星座"
@@ -92,7 +92,7 @@ def prettyEcho(event):
             sendString = f"{horoscope}"
         else:
             sendString = "請輸入正確的星座名稱！"
-    '''
+    
     # 處理美食查詢
     elif user_text == "美食":
         line_bot_api.reply_message(
