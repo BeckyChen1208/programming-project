@@ -6,7 +6,9 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 from linebot.models import *
 import configparser
+import time
 import random
+import logging
 import requests
 from bs4 import BeautifulSoup
 app = Flask(__name__)
