@@ -66,7 +66,7 @@ def prettyEcho(event):
                 template=buttons_template
             )
         )
-    
+    '''
     # 處理星座查詢
     elif user_text == "星座":
         sendString = "以下是我們的星座選單功能介紹\n請輸入星座"
@@ -92,7 +92,7 @@ def prettyEcho(event):
             sendString = f"{horoscope}"
         else:
             sendString = "請輸入正確的星座名稱！"
-    
+    '''
     # 處理美食查詢
     elif user_text == "美食":
         line_bot_api.reply_message(
@@ -146,11 +146,11 @@ def prettyEcho(event):
                 text='請選擇今日溫度區間：',
                 quick_reply=QuickReply(
                     items=[
-                        QuickReplyButton(action=MessageAction(label="寒冷", text="10°C以下")),
-                        QuickReplyButton(action=MessageAction(label="涼爽", text="10°C-20°C")),
-                        QuickReplyButton(action=MessageAction(label="溫暖", text="20°C-30°C")),
-                        QuickReplyButton(action=MessageAction(label="炎熱", text="30°C-35°C")),
-                        QuickReplyButton(action=MessageAction(label="極熱", text="35°C以上")),
+                        QuickReplyButton(action=MessageAction(label="10°C以下", text="寒冷")),
+                        QuickReplyButton(action=MessageAction(label="10°C-20°C", text="涼爽")),
+                        QuickReplyButton(action=MessageAction(label="20°C-30°C", text="溫暖")),
+                        QuickReplyButton(action=MessageAction(label="30°C-35°C", text="炎熱")),
+                        QuickReplyButton(action=MessageAction(label="35°C以上", text="極熱")),
                     ])))
     
     # 預設回應：將用戶原始訊息回傳
@@ -167,14 +167,14 @@ def handle_message(event):
     if data == 'date_postback':
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=event.postback.params['date']))
-
+'''
 def get_horoscope(sign):
     url = f'https://astro.click108.com.tw/daily_{sign}.php?iAstro={sign}'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
-
+'''
 # 設置日誌記錄
 logging.basicConfig(filename='bot_log.log', level=logging.INFO)
 
