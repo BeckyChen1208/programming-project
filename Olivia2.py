@@ -112,8 +112,12 @@ def prettyEcho(event):
     
     # 處理天氣查詢
     elif user_text == "旅遊":
-        sendString = scrape_viewpoints()
-        
+        recommendation = scrape_viewpoints()
+        if recommendation:
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=recommendation))
+        else:
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="目前無法找到旅遊資訊，請稍後再試。"))
+            
     # 處理具體食物查詢
     elif user_text in ["飯食", "麵食", "穀物", "蔬菜", "海鮮", "奶製品", "肉類", "家常菜", "飲料"]:
         # 處理食物選單查詢
@@ -155,6 +159,9 @@ def get_horoscope(sign):
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
 
+# 設置日誌記錄
+logging.basicConfig(filename='bot_log.log', level=logging.INFO)
+
 def fetch_url(url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -164,14 +171,21 @@ def fetch_url(url):
         "Referer": "https://www.google.com/",
         "Connection": "keep-alive"
     }
-    response = requests.get(url, headers=headers)
-    if response.status_code != 200:
-        print(f"Error: Unable to fetch URL {url}. Status code: {response.status_code}")
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            logging.error(f"Error: Unable to fetch URL {url}. Status code: {response.status_code}")
+            return None
+        return response
+    except requests.exceptions.RequestException as e:
+        # 在出現網絡問題或其他問題時記錄錯誤
+        logging.error(f"Request error for URL {url}: {e}")
         return None
-    return response
 
 def scrape_viewpoints():
-    response = fetch_url("https://www.taiwan.net.tw/")
+    BASE_URL = "https://www.taiwan.net.tw/"
+    response = fetch_url(BASE_URL)
     if response is None:
         return
     
@@ -182,6 +196,8 @@ def scrape_viewpoints():
     
     for viewpoint in viewpoints:
         url = urljoin(BASE_URL, viewpoint.get("href"))
+        # 控制請求速率
+        time.sleep(random.uniform(1, 3))
         url_response = fetch_url(url)
         if url_response is None:
             continue
@@ -194,13 +210,15 @@ def scrape_viewpoints():
             de_viewpoint_text = de_viewpoint.find("span", class_="circularbtn-title").getText()
             
             de_url = urljoin(BASE_URL, de_viewpoint.get("href"))
+            # 控制請求速率
+            time.sleep(random.uniform(1, 3))
             de_url_response = fetch_url(de_url)
             if de_url_response is None:
                 continue
             
             de_url_soup = BeautifulSoup(de_url_response.text, "html.parser")
-            
             titles = de_url_soup.find_all("div", class_="card-info")
+            
             for title in titles:
                 itinerary_title = title.find("div", class_="card-title").getText()
                 all_itineraries.append({
@@ -212,9 +230,6 @@ def scrape_viewpoints():
     # 隨機推薦一個行程
     if all_itineraries:
         random_itinerary = random.choice(all_itineraries)
-        print("隨機推薦的行程:")
-        print(f"地點: {random_itinerary['viewpoint']} - {random_itinerary['de_viewpoint']}")
-        print(f"行程名稱: {random_itinerary['title']}")
-
+        return f"隨機推薦的行程:\n地點: {random_itinerary['viewpoint']} - {random_itinerary['de_viewpoint']}\n行程名稱: {random_itinerary['title']}"
 if __name__ == "__main__":
     app.run()
