@@ -233,5 +233,6 @@ def scrape_viewpoints():
     if all_itineraries:
         random_itinerary = random.choice(all_itineraries)
         return f"隨機推薦的行程:\n地點: {random_itinerary['viewpoint']} - {random_itinerary['de_viewpoint']}\n行程名稱: {random_itinerary['title']}"
+        
 if __name__ == "__main__":
     app.run()
