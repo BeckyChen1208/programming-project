@@ -92,7 +92,7 @@ def prettyEcho(event):
             sendString = "請輸入正確的星座名稱！"
     
     # 處理美食查詢
-    elif "美食" in user_text:
+    elif user_text == "美食":
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(
@@ -111,7 +111,7 @@ def prettyEcho(event):
                     ])))
     
     # 處理天氣查詢
-    elif "旅遊" in user_text:
+    elif user_text == "旅遊":
         sendString = scrape_viewpoints()
         
     # 處理具體食物查詢
@@ -154,7 +154,7 @@ def get_horoscope(sign):
     soup = BeautifulSoup(response.text, 'html.parser')
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
-
+'''
 def fetch_url(url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -169,7 +169,7 @@ def fetch_url(url):
         print(f"Error: Unable to fetch URL {url}. Status code: {response.status_code}")
         return None
     return response
-
+'''
 def scrape_viewpoints():
     response = fetch_url("https://www.taiwan.net.tw/")
     if response is None:
