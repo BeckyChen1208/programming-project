@@ -43,18 +43,20 @@ def prettyEcho(event):
 
     # 處理系統功能
     if "系統功能" in user_text:
-        buttons_template = ButtonsTemplate(
-            title='按鈕樣板',
-            thumbnail_image_url='https://i.pinimg.com/originals/ca/9a/a7/ca9aa7a0f9ae2e323bef8c553eda0d10.jpg',
-            text='請選擇以下操作',
-            actions=[
-                MessageAction(label='旅遊', text='旅遊'),
-                MessageAction(label='星座', text='星座'),
-                MessageAction(label='穿搭', text='穿搭'),
-                MessageAction(label='美食', text='美食')
-            ]
-        )
-        return TemplateSendMessage(alt_text='按鈕樣板', template=buttons_template)
+        line_bot_api.reply_message(
+            event.reply_token,
+            TemplateSendMessage(alt_text='按鈕樣板', template=buttons_template)
+            (
+                buttons_template = ButtonsTemplate(
+                title='按鈕樣板',
+                thumbnail_image_url='https://i.pinimg.com/originals/ca/9a/a7/ca9aa7a0f9ae2e323bef8c553eda0d10.jpg',
+                text='請選擇以下操作',
+                actions=[
+                    MessageAction(label='旅遊', text='旅遊'),
+                    MessageAction(label='星座', text='星座'),
+                    MessageAction(label='穿搭', text='穿搭'),
+                    MessageAction(label='美食', text='美食')
+                ])))
     
     # 處理星座查詢
     elif user_text == "星座":
