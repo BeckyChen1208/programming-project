@@ -154,7 +154,7 @@ def get_horoscope(sign):
     soup = BeautifulSoup(response.text, 'html.parser')
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
-'''
+
 def fetch_url(url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
@@ -169,7 +169,7 @@ def fetch_url(url):
         print(f"Error: Unable to fetch URL {url}. Status code: {response.status_code}")
         return None
     return response
-'''
+
 def scrape_viewpoints():
     response = fetch_url("https://www.taiwan.net.tw/")
     if response is None:
