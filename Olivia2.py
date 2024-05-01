@@ -43,7 +43,18 @@ def prettyEcho(event):
 
     # 處理系統功能
     if "系統功能" in user_text:
-        sendString = "這是我們系統的功能介紹\n請輸入您想查看的功能名稱：\n星座\n美食\n天氣"
+        buttons_template = ButtonsTemplate(
+            title='按鈕樣板',
+            thumbnail_image_url='https://i.pinimg.com/originals/ca/9a/a7/ca9aa7a0f9ae2e323bef8c553eda0d10.jpg',
+            text='請選擇以下操作',
+            actions=[
+                MessageAction(label='旅遊', text='旅遊'),
+                MessageAction(label='星座', text='星座'),
+                MessageAction(label='穿搭', text='穿搭'),
+                MessageAction(label='美食', text='美食')
+            ]
+        )
+        return TemplateSendMessage(alt_text='按鈕樣板', template=buttons_template)
     
     # 處理星座查詢
     elif user_text == "星座":
