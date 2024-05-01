@@ -167,14 +167,14 @@ def handle_message(event):
     if data == 'date_postback':
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=event.postback.params['date']))
-'''
+
 def get_horoscope(sign):
     url = f'https://astro.click108.com.tw/daily_{sign}.php?iAstro={sign}'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
-'''
+
 # 設置日誌記錄
 logging.basicConfig(filename='bot_log.log', level=logging.INFO)
 
