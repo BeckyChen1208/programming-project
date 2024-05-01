@@ -42,7 +42,7 @@ def prettyEcho(event):
     user_text = event.message.text.strip()  # 獲取用戶訊息並移除首尾空白
 
     # 處理系統功能
-    if "系統功能" in user_text:
+    if user_text == "系統功能":
         # 定義按鈕樣板
         buttons_template = ButtonsTemplate(
             title='按鈕樣板',
