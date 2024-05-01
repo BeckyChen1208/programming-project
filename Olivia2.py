@@ -112,7 +112,7 @@ def prettyEcho(event):
                         QuickReplyButton(action=MessageAction(label="飲料", text="飲料"))
                     ])))
     
-    # 處理天氣查詢
+    # 處理旅遊查詢
     elif user_text == "旅遊":
         recommendation = scrape_viewpoints()
         if recommendation:
@@ -138,7 +138,21 @@ def prettyEcho(event):
         random_food = random.choice(food_options[user_text])
         # 回復隨機選擇的食物
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=random_food))
-        
+
+    elif user_text == "穿搭":
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                text='請選擇今日溫度區間：',
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(action=MessageAction(label="寒冷", text="10°C以下")),
+                        QuickReplyButton(action=MessageAction(label="涼爽", text="10°C-20°C")),
+                        QuickReplyButton(action=MessageAction(label="溫暖", text="20°C-30°C")),
+                        QuickReplyButton(action=MessageAction(label="炎熱", text="30°C-35°C")),
+                        QuickReplyButton(action=MessageAction(label="極熱", text="35°C以上")),
+                    ])))
+    
     # 預設回應：將用戶原始訊息回傳
     else:
         sendString = user_text
