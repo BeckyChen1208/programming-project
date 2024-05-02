@@ -114,12 +114,13 @@ def prettyEcho(event):
     
     # 處理旅遊查詢
     elif user_text == "旅遊":
-        recommendation = scrape_viewpoints()
+        sendString = scrape_viewpoints()
+        '''
         if recommendation:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=recommendation))
         else:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="目前無法找到旅遊資訊，請稍後再試。"))
-            
+        '''
     # 處理具體食物查詢
     elif user_text in ["飯食", "麵食", "穀物", "蔬菜", "海鮮", "奶製品", "肉類", "家常菜", "飲料"]:
         # 處理食物選單查詢
