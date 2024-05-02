@@ -115,12 +115,11 @@ def prettyEcho(event):
     # 處理旅遊查詢
     elif user_text == "旅遊":
         sendString = scrape_viewpoints()
-        '''
         if recommendation:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=recommendation))
         else:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="目前無法找到旅遊資訊，請稍後再試。"))
-        '''
+            
     # 處理具體食物查詢
     elif user_text in ["飯食", "麵食", "穀物", "蔬菜", "海鮮", "奶製品", "肉類", "家常菜", "飲料"]:
         # 處理食物選單查詢
@@ -201,40 +200,30 @@ def fetch_url(url):
         return None
 '''
 def scrape_viewpoints():
-    BASE_URL = "https://www.taiwan.net.tw/"
-    response = requests.get(BASE_URL)
-    
-    soup = BeautifulSoup(response.text, "html.parser")
-    
-    viewpoints = soup.find_all("a", class_="megamenu-btn")
-    all_itineraries = []
-    
-    for viewpoint in viewpoints:
-        url = urljoin(BASE_URL, viewpoint.get("href"))
-        '''
-        # 控制請求速率
-        time.sleep(random.uniform(1, 3))
-        '''
-        url_response = requests.get(url)
-        
-        url_soup = BeautifulSoup(url_response.text, "html.parser")
-        
-        de_viewpoints = url_soup.find_all("a", class_="circularbtn")
-        for de_viewpoint in de_viewpoints:
-            viewpoint_text = viewpoint.getText()
-            de_viewpoint_text = de_viewpoint.find("span", class_="circularbtn-title").getText()
-            
-            de_url = urljoin(BASE_URL, de_viewpoint.get("href"))
-            '''
-            # 控制請求速率
-            time.sleep(random.uniform(1, 3))
-            '''
-            de_url_response = requests.get(de_url)
-            
-            de_url_soup = BeautifulSoup(de_url_response.text, "html.parser")
-            titles = de_url_soup.find_all("div", class_="card-info")
-            
-            for title in titles:
+    response = requests.get("https://www.taiwan.net.tw/")
+soup = BeautifulSoup(response.text, "html.parser")
+print(soup.prettify())
+
+viewpoints = soup.find_all("a", class_="megamenu-btn")
+all_itineraries = []
+for viewpoint in viewpoints:
+    url = viewpoint.get("href")
+    url_response = requests.get("https://www.taiwan.net.tw/"+url)
+    url_soup = BeautifulSoup(url_response.text, "html.parser")
+    de_viewpoints=url_soup.find_all("a",class_="circularbtn")
+    for de_viewpoint in de_viewpoints:
+        print(viewpoint.getText()+" - "+de_viewpoint.find("span",class_="circularbtn-title").getText())
+        de_url=de_viewpoint.get("href")
+        de_url_response = requests.get("https://www.taiwan.net.tw/"+de_url)
+        de_url_soup = BeautifulSoup(de_url_response.text, "html.parser")
+        titles = de_url_soup.find_all("div", class_="card-info")
+        for title in titles:
+            print("    "+title.select_one("div", class_="card-title").getText())
+
+            hashtags = de_url_soup.find_all("div", class_="hashtag",limit=10)
+            for hashtag in hashtags:
+
+                print("      -"+hashtag.select_one("a").getText())for title in titles:
                 itinerary_title = title.find("div", class_="card-title").getText()
                 all_itineraries.append({
                     "viewpoint": viewpoint_text,
