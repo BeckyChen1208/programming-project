@@ -201,35 +201,33 @@ def fetch_url(url):
 '''
 def scrape_viewpoints():
     response = requests.get("https://www.taiwan.net.tw/")
-soup = BeautifulSoup(response.text, "html.parser")
-print(soup.prettify())
+    soup = BeautifulSoup(response.text, "html.parser")
 
-viewpoints = soup.find_all("a", class_="megamenu-btn")
-all_itineraries = []
-for viewpoint in viewpoints:
-    url = viewpoint.get("href")
-    url_response = requests.get("https://www.taiwan.net.tw/"+url)
-    url_soup = BeautifulSoup(url_response.text, "html.parser")
-    de_viewpoints=url_soup.find_all("a",class_="circularbtn")
-    for de_viewpoint in de_viewpoints:
-        print(viewpoint.getText()+" - "+de_viewpoint.find("span",class_="circularbtn-title").getText())
-        de_url=de_viewpoint.get("href")
-        de_url_response = requests.get("https://www.taiwan.net.tw/"+de_url)
-        de_url_soup = BeautifulSoup(de_url_response.text, "html.parser")
-        titles = de_url_soup.find_all("div", class_="card-info")
-        
-        for title in titles:
-            itinerary_title = title.find("div", class_="card-title").getText()
-            all_itineraries.append({
-                "viewpoint": viewpoint_text,
-                "de_viewpoint": de_viewpoint_text,
-                "title": itinerary_title
-            })
+    viewpoints = soup.find_all("a", class_="megamenu-btn")
+    all_itineraries = []
+    for viewpoint in viewpoints:
+        url = viewpoint.get("href")
+        url_response = requests.get("https://www.taiwan.net.tw/"+url)
+        url_soup = BeautifulSoup(url_response.text, "html.parser")
+        de_viewpoints=url_soup.find_all("a",class_="circularbtn")
+        for de_viewpoint in de_viewpoints:
+            print(viewpoint.getText()+" - "+de_viewpoint.find("span",class_="circularbtn-title").getText())
+            de_url=de_viewpoint.get("href")
+            de_url_response = requests.get("https://www.taiwan.net.tw/"+de_url)
+            de_url_soup = BeautifulSoup(de_url_response.text, "html.parser")
+            titles = de_url_soup.find_all("div", class_="card-info")
+            for title in titles:
+                itinerary_title = title.find("div", class_="card-title").getText()
+                all_itineraries.append({
+                    "viewpoint": viewpoint_text,
+                    "de_viewpoint": de_viewpoint_text,
+                    "title": itinerary_title
+                })
                 
-    # 隨機推薦一個行程
-    if all_itineraries:
-        random_itinerary = random.choice(all_itineraries)
-        return f"隨機推薦的行程:\n地點: {random_itinerary['viewpoint']} - {random_itinerary['de_viewpoint']}\n行程名稱: {random_itinerary['title']}"
+        # 隨機推薦一個行程
+        if all_itineraries:
+            random_itinerary = random.choice(all_itineraries)
+            return f"隨機推薦的行程:\n地點: {random_itinerary['viewpoint']} - {random_itinerary['de_viewpoint']}\n行程名稱: {random_itinerary['title']}"
         
 if __name__ == "__main__":
     app.run()
