@@ -217,19 +217,14 @@ for viewpoint in viewpoints:
         de_url_response = requests.get("https://www.taiwan.net.tw/"+de_url)
         de_url_soup = BeautifulSoup(de_url_response.text, "html.parser")
         titles = de_url_soup.find_all("div", class_="card-info")
+        
         for title in titles:
-            print("    "+title.select_one("div", class_="card-title").getText())
-
-            hashtags = de_url_soup.find_all("div", class_="hashtag",limit=10)
-            for hashtag in hashtags:
-
-                print("      -"+hashtag.select_one("a").getText())for title in titles:
-                itinerary_title = title.find("div", class_="card-title").getText()
-                all_itineraries.append({
-                    "viewpoint": viewpoint_text,
-                    "de_viewpoint": de_viewpoint_text,
-                    "title": itinerary_title
-                })
+            itinerary_title = title.find("div", class_="card-title").getText()
+            all_itineraries.append({
+                "viewpoint": viewpoint_text,
+                "de_viewpoint": de_viewpoint_text,
+                "title": itinerary_title
+            })
                 
     # 隨機推薦一個行程
     if all_itineraries:
