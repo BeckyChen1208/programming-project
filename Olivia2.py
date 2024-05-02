@@ -174,7 +174,7 @@ def get_horoscope(sign):
     soup = BeautifulSoup(response.text, 'html.parser')
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
-
+'''
 # 設置日誌記錄
 logging.basicConfig(filename='bot_log.log', level=logging.INFO)
 
@@ -198,12 +198,10 @@ def fetch_url(url):
         # 在出現網絡問題或其他問題時記錄錯誤
         logging.error(f"Request error for URL {url}: {e}")
         return None
-
+'''
 def scrape_viewpoints():
     BASE_URL = "https://www.taiwan.net.tw/"
-    response = fetch_url(BASE_URL)
-    if response is None:
-        return
+    response = requests.get(BASE_URL)
     
     soup = BeautifulSoup(response.text, "html.parser")
     
@@ -212,11 +210,11 @@ def scrape_viewpoints():
     
     for viewpoint in viewpoints:
         url = urljoin(BASE_URL, viewpoint.get("href"))
+        '''
         # 控制請求速率
         time.sleep(random.uniform(1, 3))
-        url_response = fetch_url(url)
-        if url_response is None:
-            continue
+        '''
+        url_response = requests.get(url)
         
         url_soup = BeautifulSoup(url_response.text, "html.parser")
         
@@ -226,11 +224,11 @@ def scrape_viewpoints():
             de_viewpoint_text = de_viewpoint.find("span", class_="circularbtn-title").getText()
             
             de_url = urljoin(BASE_URL, de_viewpoint.get("href"))
+            '''
             # 控制請求速率
             time.sleep(random.uniform(1, 3))
-            de_url_response = fetch_url(de_url)
-            if de_url_response is None:
-                continue
+            '''
+            de_url_response = requests.get(de_url)
             
             de_url_soup = BeautifulSoup(de_url_response.text, "html.parser")
             titles = de_url_soup.find_all("div", class_="card-info")
