@@ -266,7 +266,7 @@ def scrape_viewpoints(city):
     url = f'https://travel.yam.com/find/{city}'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
-    viewpoints = soup.find('div', class_='article_list_box_info').text.strip()
+    viewpoints = soup.find('div', class_='article_list_tab_content').text.strip()
     return viewpoints
         
 if __name__ == "__main__":
