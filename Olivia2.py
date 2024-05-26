@@ -11,6 +11,8 @@ import random
 import logging
 import requests
 from bs4 import BeautifulSoup
+import pymongo
+from pymongo import MongoClient
 app = Flask(__name__)
 
 # LINE 聊天機器人的基本資料
