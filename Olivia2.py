@@ -69,9 +69,26 @@ def prettyEcho(event):
     
     # 處理星座查詢
     elif user_text == "星座":
-        sendString = "以下是我們的星座選單功能介紹\n請輸入星座"
-    elif user_text.endswith("座"):
-        sign = user_text.split(" ")[0]  # 提取用戶輸入的星座
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                text='請選擇您的星座：',
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(action=MessageAction(label="牡羊座", text="牡羊座")),
+                        QuickReplyButton(action=MessageAction(label="金牛座", text="金牛座")),
+                        QuickReplyButton(action=MessageAction(label="雙子座", text="雙子座")),
+                        QuickReplyButton(action=MessageAction(label="巨蟹座", text="巨蟹座")),
+                        QuickReplyButton(action=MessageAction(label="獅子座", text="獅子座")),
+                        QuickReplyButton(action=MessageAction(label="處女座", text="處女座")),
+                        QuickReplyButton(action=MessageAction(label="天秤座", text="天秤座")),
+                        QuickReplyButton(action=MessageAction(label="天蠍座", text="天蠍座")),
+                        QuickReplyButton(action=MessageAction(label="射手座", text="射手座")),
+                        QuickReplyButton(action=MessageAction(label="摩羯座", text="摩羯座")),
+                        QuickReplyButton(action=MessageAction(label="水瓶座", text="水瓶座")),
+                        QuickReplyButton(action=MessageAction(label="雙魚座", text="雙魚座"))
+                    ])))
+    elif user_text in ["牡羊座", "金牛座", "雙子座", "巨蟹座", "獅子座", "處女座", "天秤座", "天蠍座", "射手座", "摩羯座", "水瓶座", "雙魚座"]:
         signs = {
             "牡羊座": 0,
             "金牛座": 1,
@@ -86,7 +103,7 @@ def prettyEcho(event):
             "水瓶座": 10,
             "雙魚座": 11
         }
-        sign_index = signs.get(sign)
+        sign_index = signs.get(user_text)
         if sign_index is not None:
             horoscope = get_horoscope(sign_index)  # 獲取星座運勢
             sendString = f"{horoscope}"
@@ -200,34 +217,36 @@ def fetch_url(url):
         return None
 '''
 def scrape_viewpoints():
-    response = requests.get("https://www.taiwan.net.tw/")
+    url = "https://www.taiwan.net.tw/"
+    response = requests.get(url)
+    response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, "html.parser")
 
-    viewpoints = soup.find_all("a", class_="megamenu-btn")
-    all_itineraries = []
-    for viewpoint in viewpoints:
-        url = viewpoint.get("href")
-        url_response = requests.get("https://www.taiwan.net.tw/"+url)
-        url_soup = BeautifulSoup(url_response.text, "html.parser")
-        de_viewpoints=url_soup.find_all("a",class_="circularbtn")
-        for de_viewpoint in de_viewpoints:
-            print(viewpoint.getText()+" - "+de_viewpoint.find("span",class_="circularbtn-title").getText())
-            de_url=de_viewpoint.get("href")
-            de_url_response = requests.get("https://www.taiwan.net.tw/"+de_url)
-            de_url_soup = BeautifulSoup(de_url_response.text, "html.parser")
-            titles = de_url_soup.find_all("div", class_="card-info")
-            for title in titles:
-                itinerary_title = title.find("div", class_="card-title").getText()
-                all_itineraries.append({
-                    "viewpoint": viewpoint_text,
-                    "de_viewpoint": de_viewpoint_text,
-                    "title": itinerary_title
-                })
-                
-        # 隨機推薦一個行程
-        if all_itineraries:
-            random_itinerary = random.choice(all_itineraries)
-            return f"隨機推薦的行程:\n地點: {random_itinerary['viewpoint']} - {random_itinerary['de_viewpoint']}\n行程名稱: {random_itinerary['title']}"
+    viewpoints = []
+
+    if response.status_code == 200:
+        container_elements = soup.find_all(class_='container-fluid theme-container')
+        for container_element in container_elements:
+            try:
+                link_elements = container_element.find_all('a', class_='megamenu-btn')
+                for link_element in link_elements:
+                    link_text = link_element.get_text(strip=True)
+                    link_url = link_element['href']
+                    absolute_link_url = urljoin(url, link_url)  # 轉換為絕對路徑
+                    viewpoints.append({
+                        'title': link_text,
+                        'url': absolute_link_url
+                    })
+            except Exception as e:
+                print("連結提取失敗:", str(e))
+
+        if viewpoints:
+            random_viewpoint = random.choice(viewpoints)
+            return f"隨機推薦的旅遊景點:\n名稱: {random_viewpoint['title']}\n連結: {random_viewpoint['url']}"
+
+    else:
+        print("無法取得網頁內容，狀態碼:", response.status_code)
+        return None
         
 if __name__ == "__main__":
     app.run()
