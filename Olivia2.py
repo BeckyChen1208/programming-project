@@ -11,8 +11,8 @@ import random
 import logging
 import requests
 from bs4 import BeautifulSoup
-import pymongo
-from pymongo import MongoClient
+import sqlite3
+import math
 app = Flask(__name__)
 
 # LINE 聊天機器人的基本資料
@@ -24,20 +24,34 @@ line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 
 # ----連接資料庫 traveling----
+try:
+    # 嘗試連接資料庫
+    conn = sqlite3.connect('traveling.db')
+    cursor = conn.cursor()
+    print("Connected to SQLite")
+except Exception as e:
+    print("Error connecting to SQLite:", str(e))
+    # 如果連接失敗，你可以選擇如何處理，例如終止程式或執行其他操作
+# 創建 placesinfo 表格
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS placesinfo (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        location TEXT,
+        description TEXT
+    )
+''')
+conn.commit()
 
-client = MongoClient('mongodb+srv://xxxxxxxxxx')
+# 將城市資訊存入 placesinfo 表格
+def insert_city_info(name, location, description):
+    cursor.execute("INSERT INTO placesinfo (name, location, description) VALUES (?, ?, ?)", (name, location, description))
+    conn.commit()
 
-def get_database():
-   # Provide the mongodb atlas url to connect python to mongodb using pymongo
-   CONNECTION_STRING = "mongodb+srv://xxxxxxxxxx"
-   # Create a connection using MongoClient.
-   client = MongoClient(CONNECTION_STRING)
-   # Create the database
-   return client['traveling']
-
-db = client.get_database()
-placeinfo = db["placesinfo"]
-users = db["users"]
+# 從 placesinfo 表格中獲取城市資訊
+def get_city_info(name):
+    cursor.execute("SELECT * FROM placesinfo WHERE name=?", (name,))
+    return cursor.fetchone()
 
 #  ----定義計算距離的函式----
 
