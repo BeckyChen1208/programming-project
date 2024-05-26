@@ -25,41 +25,23 @@ handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 # 接收 LINE 的資訊
 @app.route("/callback", methods=['POST'])
 def callback():
+    signature = request.headers['X-Line-Signature']
+    body = request.get_data(as_text=True)
+    app.logger.info("Request body: " + body)
+
     try:
-        signature = request.headers['X-Line-Signature']
-        body = request.get_data(as_text=True)
+        print(body, signature)
         handler.handle(body, signature)
+
     except InvalidSignatureError:
         abort(400)
-    except Exception as e:
-        print(f"Error in callback: {e}")
-        abort(500)
+
     return 'OK'
 
 @handler.add(MessageEvent, message=TextMessage)
 def prettyEcho(event):
-    try:
-        user_message = event.message.text  # 確保這裡獲取到用戶的訊息
-        recommendation = get_recommendation(user_message)  # 初始化 recommendation
-
-        # 根據 recommendation 的結果生成 sendString
-        if recommendation:
-            sendString = recommendation
-        else:
-            sendString = "找不到相關旅遊資訊。"
-
-        # 回應用戶訊息
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=sendString)
-        )
-    except Exception as e:
-        print(f"Error in prettyEcho: {e}")
-        sendString = "發生錯誤，請稍後再試。"
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=sendString)
-        )
+    sendString = ""
+    user_text = event.message.text.strip()  # 獲取用戶訊息並移除首尾空白
 
     # 處理系統功能
     if user_text == "系統功能":
