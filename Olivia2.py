@@ -203,7 +203,8 @@ def prettyEcho(event):
     elif user_text in ["台北市", "新北市", "基隆市", "桃園市", "新竹市", "新竹縣", "宜蘭縣", "台中市", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "高雄市", "台南市", "嘉義市", "嘉義縣", "屏東縣", "花蓮縣", "台東縣"]:
         recommendation = scrape_viewpoints(user_text)
         if recommendation:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=recommendation))
+            message = "\n".join([f"{item['title']}: {item['href']}" for item in recommendations])
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=message))
         else:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="目前無法找到旅遊資訊，請稍後再試。"))
             
@@ -269,7 +270,6 @@ def scrape_viewpoints(city):
     viewpoints = []
     sections = soup.find_all('section', class_='article_list_box_content')
     for section in sections:
-        
         box_info = section.find('div', class_='article_list_box_info')
         if box_info:
             href = box_info.find('a')['href']
