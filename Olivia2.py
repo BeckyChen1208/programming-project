@@ -270,6 +270,7 @@ def scrape_viewpoints(city):
     sections = soup.find_all('section', class_='article_list_box_content')
     for section in sections:
         href = section.find('a', class_='article_list_img')['href']
+        full_url = urljoin('https://travel.yam.com', href)
         title = section.find('a', class_='article_list_img').img['alt']
         viewpoints.append({'href': href, 'title': title})
     return viewpoints
