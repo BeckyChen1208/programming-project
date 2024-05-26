@@ -275,6 +275,8 @@ def scrape_viewpoints(city):
             href = box_info.find('a')['href']
             title = box_info.find('h3').text.strip()
             viewpoints.append({'title': title, 'href': f"https://travel.yam.com{href}"})
+        else:
+            viewpoints = "1"
     return viewpoints
         
 if __name__ == "__main__":
