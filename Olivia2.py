@@ -23,51 +23,6 @@ config.read(config_path)
 line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 
-# ----連接資料庫 traveling----
-try:
-    # 嘗試連接資料庫
-    conn = sqlite3.connect('traveling.db')
-    cursor = conn.cursor()
-    print("Connected to SQLite")
-except Exception as e:
-    print("Error connecting to SQLite:", str(e))
-    # 如果連接失敗，你可以選擇如何處理，例如終止程式或執行其他操作
-# 創建 placesinfo 表格
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS placesinfo (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        location TEXT,
-        description TEXT
-    )
-''')
-conn.commit()
-
-# 將城市資訊存入 placesinfo 表格
-def insert_city_info(name, location, description):
-    cursor.execute("INSERT INTO placesinfo (name, location, description) VALUES (?, ?, ?)", (name, location, description))
-    conn.commit()
-
-# 從 placesinfo 表格中獲取城市資訊
-def get_city_info(name):
-    cursor.execute("SELECT * FROM placesinfo WHERE name=?", (name,))
-    return cursor.fetchone()
-
-#  ----定義計算距離的函式----
-
-def count_dist(lon_1, lat_1, lon_2, lat_2):
-# 將十進位制度數轉化為弧度 
-    lon1, lat1, lon2, lat2 = map(radians, [lon_1, lat_1, lon_2, lat_2]) 
-    # haversine公式 
-    dlon = lon2 - lon1 
-    dlat = lat2 - lat1 
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2 
-    c = 2 * asin(sqrt(a)) 
-    r = 6371 # 地球平均半徑，單位為公里 
-    return round(c * r,1)
-
-city_list = ['新北市','台北市','桃園市','新竹市','新竹縣','宜蘭縣','苗栗縣','台中市','彰化縣','雲林縣','嘉義縣','嘉義市','台南市','高雄市','屏東縣','花蓮縣','台東縣']
-
 # 接收 LINE 的資訊
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -195,7 +150,7 @@ def prettyEcho(event):
     # 選擇縣市
     elif user_text == '北部':
         flex_message = TextSendMessage(
-            text='你在北部的哪個縣市呢？',
+            text='你想去北部的哪個縣市呢？',
             quick_reply=QuickReply(items=[
                 QuickReplyButton(action=PostbackTemplateAction(label="台北市", text="台北市", data='B&台北市')),
                 QuickReplyButton(action=PostbackTemplateAction(label="新北市", text="新北市", data='B&新北市')),
@@ -210,7 +165,7 @@ def prettyEcho(event):
 
     elif user_text == '中部':
         flex_message = TextSendMessage(
-            text='你在中部的哪個縣市呢？',
+            text='你想去中部的哪個縣市呢？',
             quick_reply=QuickReply(items=[
                 QuickReplyButton(action=PostbackTemplateAction(label="台中市", text="台中市", data='C&台中市')),
                 QuickReplyButton(action=PostbackTemplateAction(label="苗栗縣", text="苗栗縣", data='C&苗栗縣')),
@@ -223,7 +178,7 @@ def prettyEcho(event):
 
     elif user_text == '南部':
         flex_message = TextSendMessage(
-            text='你在南部的哪個縣市呢？',
+            text='你想去南部的哪個縣市呢？',
             quick_reply=QuickReply(items=[
                 QuickReplyButton(action=PostbackTemplateAction(label="高雄市", text="高雄市", data='S&高雄市')),
                 QuickReplyButton(action=PostbackTemplateAction(label="台南市", text="台南市", data='S&台南市')),
@@ -236,7 +191,7 @@ def prettyEcho(event):
 
     elif user_text == '東部':
         flex_message = TextSendMessage(
-            text='你在東部的哪個縣市呢？',
+            text='你想去東部的哪個縣市呢？',
             quick_reply=QuickReply(items=[
                 QuickReplyButton(action=PostbackTemplateAction(label="花蓮縣", text="花蓮縣", data='E&花蓮縣')),
                 QuickReplyButton(action=PostbackTemplateAction(label="台東縣", text="台東縣", data='E&台東縣'))
@@ -308,29 +263,11 @@ def get_horoscope(sign):
     return horoscope
 
 def scrape_viewpoints(city):
-    city_dict = {
-        "台北市": 1, "新北市": 2, "基隆市": 3, "桃園市": 4, "新竹市": 6, "新竹縣": 5, "宜蘭縣": 19,
-        "台中市": 8, "苗栗縣": 7, "彰化縣": 10, "南投縣": 9, "雲林縣": 11,
-        "高雄市": 17, "台南市": 14, "嘉義市": 13, "嘉義縣": 12, "屏東縣": 18,
-        "花蓮縣": 20, "台東縣": 21
-    }
-    city_code = city_dict.get(city)
-    url = f'https://travel.tycg.gov.tw/zh-tw/Travel/Attractions/{city_code}'
-
+    url = f'https://travel.yam.com/find/{city}'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
-
-    attractions = []
-    for item in soup.find_all('a', class_='btn_more'):
-        title = item.get('title')
-        link = item.get('href')
-        if title and link:
-            attractions.append(f'{title}: {link}')
-
-    if attractions:
-        return '\n'.join(attractions)
-    else:
-        return None
+    viewpoints = soup.find('div', class_='article_list_box_info').text.strip()
+    return viewpoints
         
 if __name__ == "__main__":
     app.run()
