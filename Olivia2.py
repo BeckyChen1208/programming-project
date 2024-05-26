@@ -21,6 +21,36 @@ config.read(config_path)
 line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 
+# ----連接資料庫 traveling----
+
+client = MongoClient('mongodb+srv://xxxxxxxxxx')
+
+def get_database():
+   # Provide the mongodb atlas url to connect python to mongodb using pymongo
+   CONNECTION_STRING = "mongodb+srv://xxxxxxxxxx"
+   # Create a connection using MongoClient.
+   client = MongoClient(CONNECTION_STRING)
+   # Create the database
+   return client['traveling']
+
+db = client.get_database()
+placeinfo = db["placesinfo"]
+users = db["users"]
+
+#  ----定義計算距離的函式----
+
+def count_dist(lon_1, lat_1, lon_2, lat_2):
+# 將十進位制度數轉化為弧度 
+    lon1, lat1, lon2, lat2 = map(radians, [lon_1, lat_1, lon_2, lat_2]) 
+    # haversine公式 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2 
+    c = 2 * asin(sqrt(a)) 
+    r = 6371 # 地球平均半徑，單位為公里 
+    return round(c * r,1)
+
+city_list = ['新北市','台北市','桃園市','新竹市','新竹縣','宜蘭縣','苗栗縣','台中市','彰化縣','雲林縣','嘉義縣','嘉義市','台南市','高雄市','屏東縣','花蓮縣','台東縣']
 
 # 接收 LINE 的資訊
 @app.route("/callback", methods=['POST'])
@@ -131,7 +161,76 @@ def prettyEcho(event):
     
     # 處理旅遊查詢
     elif user_text == "旅遊":
-        sendString = scrape_viewpoints()
+        buttons_template_message = TemplateSendMessage(
+            alt_text='給你驚喜！',
+            template=ButtonsTemplate(
+                title='想找哪個地區呢？',
+                text='暫不支援離島地區',
+                actions=[
+                    MessageAction(label='北部', text='北部'),
+                    MessageAction(label='中部', text='中部'),
+                    MessageAction(label='南部', text='南部'),
+                    MessageAction(label='東部', text='東部')
+                ]
+            )
+        )
+        line_bot_api.reply_message(event.reply_token, buttons_template_message)
+
+    # 選擇縣市
+    elif user_text == '北部':
+        flex_message = TextSendMessage(
+            text='你在北部的哪個縣市呢？',
+            quick_reply=QuickReply(items=[
+                QuickReplyButton(action=PostbackTemplateAction(label="台北市", text="台北市", data='B&台北市')),
+                QuickReplyButton(action=PostbackTemplateAction(label="新北市", text="新北市", data='B&新北市')),
+                QuickReplyButton(action=PostbackTemplateAction(label="基隆市", text="基隆市", data='B&基隆市')),
+                QuickReplyButton(action=PostbackTemplateAction(label="桃園市", text="桃園市", data='B&桃園市')),
+                QuickReplyButton(action=PostbackTemplateAction(label="新竹市", text="新竹市", data='B&新竹市')),
+                QuickReplyButton(action=PostbackTemplateAction(label="新竹縣", text="新竹縣", data='B&新竹縣')),
+                QuickReplyButton(action=PostbackTemplateAction(label="宜蘭縣", text="宜蘭縣", data='B&宜蘭縣'))
+            ])
+        )
+        line_bot_api.reply_message(event.reply_token, flex_message)
+
+    elif user_text == '中部':
+        flex_message = TextSendMessage(
+            text='你在中部的哪個縣市呢？',
+            quick_reply=QuickReply(items=[
+                QuickReplyButton(action=PostbackTemplateAction(label="台中市", text="台中市", data='C&台中市')),
+                QuickReplyButton(action=PostbackTemplateAction(label="苗栗縣", text="苗栗縣", data='C&苗栗縣')),
+                QuickReplyButton(action=PostbackTemplateAction(label="彰化縣", text="彰化縣", data='C&彰化縣')),
+                QuickReplyButton(action=PostbackTemplateAction(label="南投縣", text="南投縣", data='C&南投縣')),
+                QuickReplyButton(action=PostbackTemplateAction(label="雲林縣", text="雲林縣", data='C&雲林縣'))
+            ])
+        )
+        line_bot_api.reply_message(event.reply_token, flex_message)
+
+    elif user_text == '南部':
+        flex_message = TextSendMessage(
+            text='你在南部的哪個縣市呢？',
+            quick_reply=QuickReply(items=[
+                QuickReplyButton(action=PostbackTemplateAction(label="高雄市", text="高雄市", data='S&高雄市')),
+                QuickReplyButton(action=PostbackTemplateAction(label="台南市", text="台南市", data='S&台南市')),
+                QuickReplyButton(action=PostbackTemplateAction(label="嘉義市", text="嘉義市", data='S&嘉義市')),
+                QuickReplyButton(action=PostbackTemplateAction(label="嘉義縣", text="嘉義縣", data='S&嘉義縣')),
+                QuickReplyButton(action=PostbackTemplateAction(label="屏東縣", text="屏東縣", data='S&屏東縣'))
+            ])
+        )
+        line_bot_api.reply_message(event.reply_token, flex_message)
+
+    elif user_text == '東部':
+        flex_message = TextSendMessage(
+            text='你在東部的哪個縣市呢？',
+            quick_reply=QuickReply(items=[
+                QuickReplyButton(action=PostbackTemplateAction(label="花蓮縣", text="花蓮縣", data='E&花蓮縣')),
+                QuickReplyButton(action=PostbackTemplateAction(label="台東縣", text="台東縣", data='E&台東縣'))
+            ])
+        )
+        line_bot_api.reply_message(event.reply_token, flex_message)
+
+    # 具體縣市查詢
+    elif user_text in ["台北市", "新北市", "基隆市", "桃園市", "新竹市", "新竹縣", "宜蘭縣", "台中市", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "高雄市", "台南市", "嘉義市", "嘉義縣", "屏東縣", "花蓮縣", "台東縣"]:
+        recommendation = scrape_viewpoints(user_text)
         if recommendation:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=recommendation))
         else:
@@ -191,61 +290,30 @@ def get_horoscope(sign):
     soup = BeautifulSoup(response.text, 'html.parser')
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
-'''
-# 設置日誌記錄
-logging.basicConfig(filename='bot_log.log', level=logging.INFO)
 
-def fetch_url(url):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Referer": "https://www.google.com/",
-        "Connection": "keep-alive"
+def scrape_viewpoints(city):
+    city_dict = {
+        "台北市": 1, "新北市": 2, "基隆市": 3, "桃園市": 4, "新竹市": 6, "新竹縣": 5, "宜蘭縣": 19,
+        "台中市": 8, "苗栗縣": 7, "彰化縣": 10, "南投縣": 9, "雲林縣": 11,
+        "高雄市": 17, "台南市": 14, "嘉義市": 13, "嘉義縣": 12, "屏東縣": 18,
+        "花蓮縣": 20, "台東縣": 21
     }
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        
-        if response.status_code != 200:
-            logging.error(f"Error: Unable to fetch URL {url}. Status code: {response.status_code}")
-            return None
-        return response
-    except requests.exceptions.RequestException as e:
-        # 在出現網絡問題或其他問題時記錄錯誤
-        logging.error(f"Request error for URL {url}: {e}")
-        return None
-'''
-def scrape_viewpoints():
-    url = "https://www.taiwan.net.tw/"
+    city_code = city_dict.get(city)
+    url = f'https://travel.tycg.gov.tw/zh-tw/Travel/Attractions/{city_code}'
+
     response = requests.get(url)
-    response.encoding = 'utf-8'
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = BeautifulSoup(response.text, 'html.parser')
 
-    viewpoints = []
+    attractions = []
+    for item in soup.find_all('a', class_='btn_more'):
+        title = item.get('title')
+        link = item.get('href')
+        if title and link:
+            attractions.append(f'{title}: {link}')
 
-    if response.status_code == 200:
-        container_elements = soup.find_all(class_='container-fluid theme-container')
-        for container_element in container_elements:
-            try:
-                link_elements = container_element.find_all('a', class_='megamenu-btn')
-                for link_element in link_elements:
-                    link_text = link_element.get_text(strip=True)
-                    link_url = link_element['href']
-                    absolute_link_url = urljoin(url, link_url)  # 轉換為絕對路徑
-                    viewpoints.append({
-                        'title': link_text,
-                        'url': absolute_link_url
-                    })
-            except Exception as e:
-                print("連結提取失敗:", str(e))
-
-        if viewpoints:
-            random_viewpoint = random.choice(viewpoints)
-            return f"隨機推薦的旅遊景點:\n名稱: {random_viewpoint['title']}\n連結: {random_viewpoint['url']}"
-
+    if attractions:
+        return '\n'.join(attractions)
     else:
-        print("無法取得網頁內容，狀態碼:", response.status_code)
         return None
         
 if __name__ == "__main__":
