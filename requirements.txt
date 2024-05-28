@@ -5,3 +5,5 @@ gunicorn
 BeautifulSoup4
 requests
 pysqlite3
+selenium
+webdriver
