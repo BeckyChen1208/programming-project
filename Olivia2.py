@@ -205,7 +205,10 @@ def prettyEcho(event):
 
     # 具體縣市查詢
     elif user_text in ["台北市", "新北市", "基隆市", "桃園市", "新竹市", "新竹縣", "宜蘭縣", "台中市", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "高雄市", "台南市", "嘉義市", "嘉義縣", "屏東縣", "花蓮縣", "台東縣"]:
-        recommendation = scrape_viewpoints(user_text)
+        for viewpoint in scrape_viewpoints(user_text):
+            print(viewpoint['title'])
+            print(viewpoint['href'])
+            print()
         if recommendation:
             message = "\n".join([f"{item['title']}: {item['href']}" for item in recommendations])
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=message))
@@ -268,45 +271,19 @@ def get_horoscope(sign):
     return horoscope
 
 def scrape_viewpoints(city):
-    # 自動安裝chromedriver
-    chromedriver_autoinstaller.install()
-    
-    # 設定Chrome的無頭模式
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    
-    # 設定WebDriver
-    driver = webdriver.Chrome(options=options)
-    
     url = f'https://travel.yam.com/find/{city}'
-    
-    # 打開網址
-    driver.get(url)
-    
-    # 等待網頁加載
-    time.sleep(5)  # 根據需要調整等待時間
-    
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
     viewpoints = []
-    
-    # 查找所有具有'class'為 'article_list_box_content' 的section
-    sections = driver.find_elements(By.CLASS_NAME, 'article_list_box_content')
-    
+    sections = soup.find_all('section', class_='article_list_box_content')
     for section in sections:
-        try:
-            box_info = section.find_element(By.CLASS_NAME, 'article_list_box_info')
-            if box_info:
-                href = box_info.find_element(By.TAG_NAME, 'a').get_attribute('href')
-                title = box_info.find_element(By.TAG_NAME, 'h3').text.strip()
-                viewpoints.append({'title': title, 'href': href})
-        except Exception as e:
-            print(f"Error: {e}")
-    
-    # 關閉WebDriver
-    driver.quit()
-    
+        box_info = section.find('div', class_='article_list_box_info')
+        if box_info:
+            href = box_info.find('a')['href']
+            title = box_info.find('h3').text.strip()
+            viewpoints.append({'title': title, 'href': f"https://travel.yam.com{href}"})
+        else:
+            viewpoints = "1"
     return viewpoints
         
 if __name__ == "__main__":
