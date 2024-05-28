@@ -6,3 +6,4 @@ BeautifulSoup4
 requests
 pysqlite3
 selenium
+chromedriver-autoinstaller
