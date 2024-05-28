@@ -224,10 +224,9 @@ def prettyEcho(event):
             carousel_template = CarouselTemplate(columns=carousel_columns)
             template_message = TemplateSendMessage(alt_text='旅遊資訊', template=carousel_template)
 
-            line_bot_api.reply_message(event.reply_token, template_message)
+            return template_message
         else:
-            # 如果使用者查詢的不是具體縣市，回傳訊息告知使用者
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="目前無法找到旅遊資訊，請稍後再試。"))
+            return TextSendMessage(text="目前無法找到旅遊資訊，請稍後再試。")
     # 處理具體食物查詢
     elif user_text in ["飯食", "麵食", "穀物", "蔬菜", "海鮮", "奶製品", "肉類", "家常菜", "飲料"]:
         # 處理食物選單查詢
