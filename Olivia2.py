@@ -13,6 +13,8 @@ import requests
 from bs4 import BeautifulSoup
 import sqlite3
 import math
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 app = Flask(__name__)
 
 # LINE 聊天機器人的基本資料
@@ -264,19 +266,35 @@ def get_horoscope(sign):
     return horoscope
 
 def scrape_viewpoints(city):
+    # 設定WebDriver
+    driver_path = r"C:\Users\b7869\Downloads\edgedriver_arm64\msedgedriver.exe"
+    driver = webdriver.Edge(executable_path=driver_path)
     url = f'https://travel.yam.com/find/{city}'
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    
+    # 打開網址
+    driver.get(url)
+    
+    # 等待網頁加載
+    time.sleep(5)  # 根據需要調整等待時間
+    
     viewpoints = []
-    sections = soup.find_all('section', class_='article_list_box_content')
+    
+    # 查找所有具有'class'為 'article_list_box_content' 的section
+    sections = driver.find_elements(By.CLASS_NAME, 'article_list_box_content')
+    
     for section in sections:
-        box_info = section.find('div', class_='article_list_box_info')
-        if box_info:
-            href = box_info.find('a')['href']
-            title = box_info.find('h3').text.strip()
-            viewpoints.append({'title': title, 'href': f"https://travel.yam.com{href}"})
-        else:
-            viewpoints = "1"
+        try:
+            box_info = section.find_element(By.CLASS_NAME, 'article_list_box_info')
+            if box_info:
+                href = box_info.find_element(By.TAG_NAME, 'a').get_attribute('href')
+                title = box_info.find_element(By.TAG_NAME, 'h3').text.strip()
+                viewpoints.append({'title': title, 'href': href})
+        except Exception as e:
+            print(f"Error: {e}")
+    
+    # 關閉WebDriver
+    driver.quit()
+    
     return viewpoints
         
 if __name__ == "__main__":
