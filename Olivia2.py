@@ -209,7 +209,7 @@ def prettyEcho(event):
             for viewpoint in viewpoints:
                 # 建立每個欄位的標題、內容和連結
                 column = CarouselColumn(
-                    thumbnail_image_url=None,  # 可以填入景點的縮圖連結
+                    thumbnail_image_url='https://travelimg.yam.com/cdn-cgi/image/w=360,h=220,fit=cover/DATA/ARTICLE/2024052514485053.jpg',  # 可以填入景點的縮圖連結
                     title=viewpoint['title'],
                     text='點擊查看詳細資訊',
                     actions=[{
