@@ -16,6 +16,7 @@ import math
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options
+import chromedriver_autoinstaller
 app = Flask(__name__)
 
 # LINE 聊天機器人的基本資料
@@ -267,15 +268,18 @@ def get_horoscope(sign):
     return horoscope
 
 def scrape_viewpoints(city):
-    # 設定Edge的無頭模式
+    # 自動安裝chromedriver
+    chromedriver_autoinstaller.install()
+    
+    # 設定Chrome的無頭模式
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     
-    # 設定WebDriver路徑
-    driver_path = "/msedgedriver.exe"  
-    driver = webdriver.Edge(executable_path=driver_path, options=options)
+    # 設定WebDriver
+    driver = webdriver.Chrome(options=options)
     
     url = f'https://travel.yam.com/find/{city}'
     
