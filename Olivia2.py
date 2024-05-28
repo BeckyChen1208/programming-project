@@ -15,6 +15,7 @@ import sqlite3
 import math
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.edge.options import Options
 app = Flask(__name__)
 
 # LINE 聊天機器人的基本資料
@@ -266,9 +267,16 @@ def get_horoscope(sign):
     return horoscope
 
 def scrape_viewpoints(city):
-    # 設定WebDriver
-    driver_path = r"C:\Users\b7869\Downloads\edgedriver_arm64\msedgedriver.exe"
-    driver = webdriver.Edge(executable_path=driver_path)
+    # 設定Edge的無頭模式
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    
+    # 設定WebDriver路徑
+    driver_path = "/msedgedriver.exe"  
+    driver = webdriver.Edge(executable_path=driver_path, options=options)
+    
     url = f'https://travel.yam.com/find/{city}'
     
     # 打開網址
