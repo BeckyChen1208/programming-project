@@ -11,12 +11,8 @@ import random
 import logging
 import requests
 from bs4 import BeautifulSoup
-import sqlite3
-import math
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.edge.options import Options
-import chromedriver_autoinstaller
+import csv
+
 app = Flask(__name__)
 
 # LINE 聊天機器人的基本資料
@@ -205,12 +201,11 @@ def prettyEcho(event):
 
     # 具體縣市查詢
     elif user_text in ["台北市", "新北市", "基隆市", "桃園市", "新竹市", "新竹縣", "宜蘭縣", "台中市", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "高雄市", "台南市", "嘉義市", "嘉義縣", "屏東縣", "花蓮縣", "台東縣"]:
-        for viewpoint in scrape_viewpoints(user_text):
-            print(viewpoint['title'])
-            print(viewpoint['href'])
-            print()
-        if recommendation:
-            message = "\n".join([f"{item['title']}: {item['href']}" for item in recommendations])
+        # 根據使用者提供的縣市查詢景點資料
+        viewpoints = get_viewpoints(user_text)
+        if viewpoints:
+            # 如果找到了景點資料，將其回傳給使用者
+            message = "\n".join([f"{item['title']}: {item['link']}" for item in viewpoints])
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=message))
         else:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text="目前無法找到旅遊資訊，請稍後再試。"))
@@ -270,21 +265,27 @@ def get_horoscope(sign):
     horoscope = soup.find('div', class_='TODAY_CONTENT').text.strip()
     return horoscope
 
-def scrape_viewpoints(city):
-    url = f'https://travel.yam.com/find/{city}'
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    viewpoints = []
-    sections = soup.find_all('section', class_='article_list_box_content')
-    for section in sections:
-        box_info = section.find('div', class_='article_list_box_info')
-        if box_info:
-            href = box_info.find('a')['href']
-            title = box_info.find('h3').text.strip()
-            viewpoints.append({'title': title, 'href': f"https://travel.yam.com{href}"})
-        else:
-            viewpoints = "1"
+# 讀取 CSV 檔案，並將資料儲存在字典中
+def load_viewpoints():
+    viewpoints = {}
+    with open('viewpoints.csv', mode='r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            city = row['City']
+            title = row['Title']
+            link = row['Link']
+            if city not in viewpoints:
+                viewpoints[city] = []
+            viewpoints[city].append({'title': title, 'link': link})
     return viewpoints
+
+# 根據使用者提供的縣市查詢相應的景點資料
+def get_viewpoints(city):
+    all_viewpoints = load_viewpoints()
+    if city in all_viewpoints:
+        return all_viewpoints[city]
+    else:
+        return None
         
 if __name__ == "__main__":
     app.run()
