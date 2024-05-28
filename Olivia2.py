@@ -204,29 +204,11 @@ def prettyEcho(event):
         # 根據使用者提供的縣市查詢景點資料
         viewpoints = get_viewpoints(user_text)
         if viewpoints:
-            # 建立輪播模板的欄位清單
-            carousel_columns = []
-            for viewpoint in viewpoints:
-                # 建立每個欄位的標題、內容和連結
-                column = CarouselColumn(
-                    thumbnail_image_url='https://travelimg.yam.com/cdn-cgi/image/w=360,h=220,fit=cover/DATA/ARTICLE/2024052514485053.jpg',  # 可以填入景點的縮圖連結
-                    title=viewpoint['title'],
-                    text='點擊查看詳細資訊',
-                    actions=[{
-                        "type": "uri",
-                        "label": "查看詳細資訊",
-                        "uri": viewpoint['link']
-                    }]
-                )
-                carousel_columns.append(column)
-
-            # 建立輪播模板
-            carousel_template = CarouselTemplate(columns=carousel_columns)
-            template_message = TemplateSendMessage(alt_text='旅遊資訊', template=carousel_template)
-
-            return template_message
+            # 如果找到了景點資料，將其回傳給使用者
+            message = "\n".join([f"{item['title']}: {item['link']}" for item in viewpoints])
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=message))
         else:
-            return TextSendMessage(text="目前無法找到旅遊資訊，請稍後再試。")
+            line_bot_api.reply_message(event.reply_token, TextSendMessage(text="目前無法找到旅遊資訊，請稍後再試。"))
     # 處理具體食物查詢
     elif user_text in ["飯食", "麵食", "穀物", "蔬菜", "海鮮", "奶製品", "肉類", "家常菜", "飲料"]:
         # 處理食物選單查詢
